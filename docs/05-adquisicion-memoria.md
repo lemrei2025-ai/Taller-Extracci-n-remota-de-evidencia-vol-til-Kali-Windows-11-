@@ -44,7 +44,7 @@ Esto puede tardar 1-3 minutos según la RAM asignada a la VM (recomendado asigna
 ## 5.4 Calcular el hash antes de transferir (cadena de custodia)
 
 ```bash
-ssh prueba@192.168.1.8 powershell.exe -NoProfile -Command "Get-FileHash -Path 'C:\temp\memoria.raw' -Algorithm SHA256"
+ssh prueba@IP_WIN powershell.exe -NoProfile -Command "Get-FileHash -Path 'C:\temp\memoria.raw' -Algorithm SHA256"
 ```
 
 Anota este hash — es la prueba de integridad del archivo original.
