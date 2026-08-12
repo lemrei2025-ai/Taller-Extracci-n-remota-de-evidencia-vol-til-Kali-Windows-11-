@@ -6,14 +6,20 @@ Antes de un volcado completo de memoria (que toma tiempo y espacio), en un incid
 
 ## 4.1 Ejecutar comandos puntuales por SSH
 
+> ⚠️ **Por qué hay que invocar `powershell` explícitamente:** cuando conectas por SSH a Windows 11, el servidor OpenSSH ejecuta el comando remoto usando el *shell por defecto* configurado en el sistema, que **por defecto es `cmd.exe`**, no PowerShell. Como `Get-Process`, `Get-NetTCPConnection` y `Get-NetNeighbor` son *cmdlets* de PowerShell (no comandos de `cmd.exe`), si los envías tal cual el equipo remoto responde con un error del tipo `'Get-Process' is not recognized as an internal or external command`. Por eso cada comando debe envolverse con `powershell -Command "..."`, para forzar que sea PowerShell quien lo interprete.
+>
+> Alternativa (opcional, fuera del alcance de este taller): se puede configurar PowerShell como shell por defecto de OpenSSH en Windows con `New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force`. Si el profesor ya configuró esto en las VMs, los comandos funcionan sin el envoltorio `powershell -Command`, pero es más seguro y portable asumir que no está configurado y envolver siempre los comandos como se muestra abajo.
+
 Desde Kali, sin necesidad de sesión interactiva, puedes lanzar comandos remotos uno a uno:
 
 ```bash
-ssh labforense@192.168.56.20 "Get-Process | Sort-Object CPU -Descending | Select-Object -First 15"
-ssh labforense@192.168.56.20 "Get-NetTCPConnection -State Established"
+ssh labforense@192.168.56.20 "powershell -Command \"Get-Process | Sort-Object CPU -Descending | Select-Object -First 15\""
+ssh labforense@192.168.56.20 "powershell -Command \"Get-NetTCPConnection -State Established\""
 ssh labforense@192.168.56.20 "quser"
-ssh labforense@192.168.56.20 "Get-NetNeighbor"   # equivalente moderno de 'arp -a'
+ssh labforense@192.168.56.20 "powershell -Command \"Get-NetNeighbor\""   # equivalente moderno de 'arp -a'
 ```
+
+> 📌 Nota sobre `quser`: es un binario nativo de Windows (`quser.exe`), no un cmdlet de PowerShell, por lo que funciona igual lo ejecute `cmd.exe` o PowerShell — no necesita el envoltorio `powershell -Command`.
 
 Cada comando te muestra, respectivamente: procesos activos, conexiones TCP establecidas, usuarios con sesión iniciada, y la tabla ARP (qué otros equipos ha "visto" la máquina en la red).
 
